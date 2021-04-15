@@ -1,0 +1,61 @@
+load_dir: null
+
+network:
+  name: resnet50
+  proj_head:
+    input_size: 2048
+    hidden_size: 4096
+    output_size: 256
+  scrl:
+    enabled: True
+    num_patches_per_image: 10
+    iou_threshold: 0.5
+    box_jittering: False
+    jittering_ratio: 0.1
+    grid_based_box_gen: True
+    min_size: 32
+    pool_size: 1
+    spatial_scale: 0.03125
+    sampling_ratio: -1
+    detectron_aligned: False
+
+dataset:
+  name: imagenet
+  root: null  # enter your dataset path
+
+augment:
+  type: simclr
+  input_size: 224
+  crop_scale: [0.2, 1.0]
+
+train:
+  enabled: True
+  online_eval: True
+  batch_size_train: 256
+  batch_size_eval: 2048
+  max_epochs: 1000
+  warmup_epochs: 10
+  valid_interval: 100
+  snapshot_interval: 100
+  tb_interval: 5
+  num_workers: 12
+  m: 0.996
+  optim:
+    lr: 0.2
+    momentum: 0.9
+    weight_decay: 0.0000015
+
+eval:
+  enabled: True
+  finetune: False
+  max_epochs: 80
+  warmup_epochs: 5
+  valid_interval: 5
+  batch_size_train: 128
+  batch_size_eval: 2048
+  num_workers: 12
+  optim:
+    lr: 0.2
+    momentum: 0.9
+    weight_decay: 0.0
+    nesterov: True
