@@ -2,10 +2,6 @@ import random
 
 import torch
 
-
-def _sample(min_, max_):
-    return random.randint(min_, max_ - 1)
-
     
 class SCRLBoxGenerator(object):
     """To generate spatially matched box pairs in the two randomly augmented views.
@@ -71,29 +67,29 @@ class SCRLBoxGenerator(object):
             if self.min_size >= int_w_scaled or self.min_size >= int_h_scaled:
                 continue
             
-            div_w_range = int(int_w_scaled/self.min_size) + 1
-            div_h_range = int(int_h_scaled/self.min_size) + 1
+            div_w_range = int_w_scaled / self.min_size
+            div_h_range = int_h_scaled / self.min_size
             for i in range(self.num_patches_per_image):
                 for _ in range(50):  # try 50 times untill IoU condition meets
                     if self.grid_based_box_gen:
                         # grid-level box generation
-                        div_w = _sample(1, div_w_range)
-                        div_h = _sample(1, div_h_range)
+                        div_w = random.randint(1, int(div_w_range))
+                        div_h = random.randint(1, int(div_h_range))
+                        grid_x = random.randint(0, div_w)
+                        grid_y = random.randint(0, div_h)
+
                         grid_w = int_w_scaled / div_w
                         grid_h = int_h_scaled / div_h
-                        grid_x = _sample(0, div_w)
-                        grid_y = _sample(0, div_h)
-
-                        box_w = _sample(self.min_size, grid_w+1)
-                        box_h = _sample(self.min_size, grid_h+1)
-                        box_x = _sample(0, grid_w-box_w+1) + int(grid_x*grid_w)
-                        box_y = _sample(0, grid_h-box_h+1) + int(grid_y*grid_h)
+                        box_w = random.uniform(self.min_size, grid_w)
+                        box_h = random.uniform(self.min_size, grid_h)
+                        box_x = random.uniform(0, grid_w - box_w) + (grid_x * grid_w)
+                        box_y = random.uniform(0, grid_h - box_h) + (grid_y * grid_h)
                     else:
                         # random box generation
-                        box_w = _sample(self.min_size, int_w_scaled)
-                        box_h = _sample(self.min_size, int_h_scaled)
-                        box_x = _sample(0, int_w_scaled - box_w)
-                        box_y = _sample(0, int_h_scaled - box_h)
+                        box_w = random.uniform(self.min_size, int_w_scaled)
+                        box_h = random.uniform(self.min_size, int_h_scaled)
+                        box_x = random.uniform(0, int_w_scaled - box_w)
+                        box_y = random.uniform(0, int_h_scaled - box_h)
 
                     box1_l = box_x * scale_wmin_inv * scale_w1 + \
                         (int_l - t1[1].item()) * scale_w1
