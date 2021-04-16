@@ -148,7 +148,7 @@ class Config(SimpleNamespace):
                 return self.__getattribute__(item)
         
     def __setattr__(self, item, value):
-        if item is not '_freezed' and self.__dict__['_freezed']:
+        if item != '_freezed' and self.__dict__['_freezed']:
             raise RuntimeError("Can't set new attribute after being freezed!")
         super().__setattr__(item, value)
 
