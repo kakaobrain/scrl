@@ -35,7 +35,7 @@ class GaussianBlur(object):
     def __call__(self, img):
         img = self.pil_to_tensor(img).unsqueeze(0)
 
-        sigma = random.uniform(self.sigma_min, self.sigma_max)
+        sigma = np.random.uniform(self.sigma_min, self.sigma_max)
         x = np.arange(-self.r, self.r + 1)
         x = np.exp(-np.power(x, 2) / (2 * sigma * sigma))
         x = x / x.sum()
@@ -63,7 +63,7 @@ class ResizeBlur(object):
         self.interpolation = interpolation
 
     def __call__(self, img):
-        level = random.randint(0, self.max_level - 1)
+        level = np.random.randint(0, self.max_level)
         w, h = img.size
         dn_size = (int(h // self.factors[level]), 
                    int(w // self.factors[level]))
