@@ -152,7 +152,7 @@ class SCRLBoxGenerator(object):
                                         [box[1], box[2], box[3], box[4]])
                         max_iou = max(max_iou, iou)
                         if max_iou > self.iou_threshold:
-                            break
+                            continue
 
                     if max_iou < self.iou_threshold:
                         break
