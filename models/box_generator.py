@@ -5,12 +5,12 @@ import torch
 def _sample(min_, max_):
     return np.random.randint(min_, max_)
 
-    
+
 class SCRLBoxGenerator(object):
     """To generate spatially matched box pairs in the two randomly augmented views.
     Ref: https://github.com/kakaobrain/scrl/issues/2
     """
-    def __init__(self, input_size, min_size, num_patches_per_image, box_jittering, 
+    def __init__(self, input_size, min_size, num_patches_per_image, box_jittering,
                  box_jittering_ratio, iou_threshold, grid_based_box_gen):
         self.input_size = input_size
         self.min_size = min_size
@@ -19,7 +19,7 @@ class SCRLBoxGenerator(object):
         self.box_jittering_ratio = box_jittering_ratio
         self.iou_threshold = iou_threshold
         self.grid_based_box_gen = grid_based_box_gen
-        
+
     @classmethod
     def init_from_config(cls, cfg):
         return cls(
@@ -69,7 +69,7 @@ class SCRLBoxGenerator(object):
 
             if self.min_size >= int_w_scaled or self.min_size >= int_h_scaled:
                 continue
-            
+
             div_w_range = int(int_w_scaled/self.min_size) + 1
             div_h_range = int(int_h_scaled/self.min_size) + 1
             for i in range(self.num_patches_per_image):
@@ -109,15 +109,17 @@ class SCRLBoxGenerator(object):
                     box2_b = box2_t + box_h * scale_hmin_inv * scale_h2
 
                     if t1[4]:
+                        temp = box1_l.copy()
                         box1_l = self.input_size - box1_r
-                        box1_r = self.input_size - box1_l
+                        box1_r = self.input_size - temp
 
                     if t2[4]:
+                        temp = box2_l.copy()
                         box2_l = self.input_size - box2_r
-                        box2_r = self.input_size - box2_l
+                        box2_r = self.input_size - temp
 
                     if self.box_jittering:
-                        src_box2 = [batch_idx + n_samples, 
+                        src_box2 = [batch_idx + n_samples,
                                     box2_l, box2_t, box2_r, box2_b]
                         box2_t, box2_l, box2_b, box2_r = jitter_box(
                             box2_t, box2_l, box2_b, box2_r,
@@ -144,7 +146,7 @@ class SCRLBoxGenerator(object):
                     if i == 0 or self.iou_threshold == 1.0:
                         break
 
-                    # reject patches if the generated patch overlaps more than 
+                    # reject patches if the generated patch overlaps more than
                     # the specific IoU threshold
                     max_iou = 0.
                     for box in spatial_boxes1[-i:]:
