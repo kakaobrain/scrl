@@ -83,8 +83,6 @@ class MyFormatter(logging.Formatter):
     def format(self, record):
         level_name = None   
         
-        
-
         if record.levelno == logging.INFO:
             level_name = C.faint("[INFO]")
         elif record.levelno == logging.DEBUG:
