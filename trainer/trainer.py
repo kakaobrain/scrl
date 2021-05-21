@@ -137,7 +137,8 @@ class SCRLTrainer(BYOLBasedTrainer):
                 if (last_eval_on and last_eval_on > self.max_eval_score):
                     self.max_eval_score = last_eval_on
                     self.max_eval_epoch = epoch 
-                    self.save_best_checkpoint()
+                    if comm.is_main_process():
+                        self.save_best_checkpoint()
                     # self.symlink_best_checkpoint(epoch)
                     is_best = C.red("[<- Best Acc.]")
             
