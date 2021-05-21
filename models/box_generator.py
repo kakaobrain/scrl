@@ -109,12 +109,10 @@ class SCRLBoxGenerator(object):
                     box2_b = box2_t + box_h * scale_hmin_inv * scale_h2
 
                     if t1[4]:
-                        box1_l = self.input_size - box1_r
-                        box1_r = self.input_size - box1_l
+                        box1_l, box1_r = self.input_size - box1_r, self.input_size - box1_l
 
                     if t2[4]:
-                        box2_l = self.input_size - box2_r
-                        box2_r = self.input_size - box2_l
+                        box2_l, box2_r = self.input_size - box2_r, self.input_size - box2_l
 
                     if self.box_jittering:
                         src_box2 = [batch_idx + n_samples, 
