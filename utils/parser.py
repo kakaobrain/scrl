@@ -57,6 +57,7 @@ def parse_args():
     overwrite_group.add_argument('--train/max_epochs', type=int, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/batch_size_train', type=int, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/batch_size_eval', type=int, default=argparse.SUPPRESS)
+    overwrite_group.add_argument('--train/lr_scaling', type=str, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/optim/lr', type=float, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/optim/weight_decay', type=float, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--eval/enabled', type=str2bool, default=argparse.SUPPRESS)
@@ -64,6 +65,7 @@ def parse_args():
     overwrite_group.add_argument('--eval/dataset', type=str, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--eval/num_workers', type=int, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--eval/batch_size', type=int, default=argparse.SUPPRESS)
+    overwrite_group.add_argument('--eval/lr_scaling', type=str, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--eval/optim/lr', type=float, default=argparse.SUPPRESS)
 
     return parser.parse_args()

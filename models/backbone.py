@@ -2,6 +2,7 @@ import logging
 
 import torch
 import torchvision.models as models
+from models.swin_xfmr import build_swin_xformer
 import torchvision.ops as ops
 from models.heads import TwoLayerLinearHead
 
@@ -11,14 +12,19 @@ log = logging.getLogger('main')
 class Backbone(torch.nn.Module):
     def __init__(self, name, proj_head_kwargs, scrl_kwargs, trainable=True):
         super(Backbone, self).__init__()
-        assert name in ['resnet50', 'resnet101'], 'only supports resnet50 and resnet101 for now.'
+        assert name in ['resnet50', 'resnet101'] or name.startswith('swin')
+        self.name = name
         self.scrl_enabled = scrl_kwargs.enabled
         self.trainable = trainable
 
         # encoder
-        network = eval(f"models.{name}")()
-        self.encoder = torch.nn.Sequential(*list(network.children())[:-1])
-
+        if name.startswith('swin'):
+            network = build_swin_xformer(name)
+            self.encoder = network
+        else:
+            network = eval(f"models.{name}")()
+            self.encoder = torch.nn.Sequential(*list(network.children())[:-1])
+        
         # RoI pooling layer for SCRL
         if self.trainable and self.scrl_enabled:
             roi_out_size = (scrl_kwargs.pool_size, ) * 2
@@ -54,12 +60,16 @@ class Backbone(torch.nn.Module):
             p: after projection / roi_p: RoI-aligned feature after projection
             h: before projection
         """
-        for n, layer in enumerate(self.encoder):
-            x = layer(x)
-            if n == len(self.encoder) - 2:
-                h_pre_gap = x
+        if self.name.startswith('resnet'):
+            for n, layer in enumerate(self.encoder):
+                x = layer(x)
+                if n == len(self.encoder) - 2:
+                    h_pre_gap = x
+            h = x.squeeze()
+        elif self.name.startswith('swin'):
+            h_pre_gap = self.encoder(x)
+            h = h_pre_gap.flatten(-2).mean(-1)
 
-        h = x.squeeze()
         if not self.trainable or no_projection:
             return h
 

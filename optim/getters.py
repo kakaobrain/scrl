@@ -35,11 +35,18 @@ def scale_learning_rate(cfg, mode):
     local_batch = cfg[mode].batch_size_train
     global_batch = int(local_batch * world_size)
     ratio = global_batch / 256.
+    try:
+        lr_scaling = cfg[mode].lr_scaling
+        assert lr_scaling in ['linear', 'sqrt']
+    except AttributeError:
+        # for backward compatibility
+        lr_scaling = 'linear'
+    ratio = ratio ** 0.5 if lr_scaling == 'sqrt' else ratio
     lr = lr_origin * ratio
     log.info(f'[LR({mode})] local_batch ({local_batch}) x '
              f'world_size ({world_size}) = global_batch ({global_batch})')
     log.info(f'[LR({mode})] scale LR from {lr_origin} '
-             f'to {lr} (x{ratio:3.2f}) by linear scaling rule.')
+             f'to {lr:6.5f} (x{ratio:3.2f}) by linear scaling rule.')
     optim = deepcopy(cfg[mode].optim)
     optim.lr = lr
     return optim
