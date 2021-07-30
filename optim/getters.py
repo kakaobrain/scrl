@@ -46,7 +46,7 @@ def scale_learning_rate(cfg, mode):
     log.info(f'[LR({mode})] local_batch ({local_batch}) x '
              f'world_size ({world_size}) = global_batch ({global_batch})')
     log.info(f'[LR({mode})] scale LR from {lr_origin} '
-             f'to {lr:6.5f} (x{ratio:3.2f}) by linear scaling rule.')
+             f'to {lr:6.5f} (x{ratio:3.2f}) by {lr_scaling} scaling rule.')
     optim = deepcopy(cfg[mode].optim)
     optim.lr = lr
     return optim
