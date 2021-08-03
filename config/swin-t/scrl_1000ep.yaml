@@ -3,9 +3,11 @@ load_dir: null
 network:
   name: swin-t
   proj_head:
+    num_layers: 3
     input_size: 768
-    hidden_size: 2048
+    hidden_size: 4096
     output_size: 256
+    output_bn: True
   scrl:
     enabled: True
     num_patches_per_image: 10

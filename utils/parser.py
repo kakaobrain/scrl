@@ -52,6 +52,7 @@ def parse_args():
                                  help='Set the load_dir different from save_dir. (default: save_dir = load_dir)')
     overwrite_group.add_argument('--augment/type', type=str, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--network/name', type=str, default=argparse.SUPPRESS)
+    overwrite_group.add_argument('--network/proj_head/hidden_size', type=int, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/enabled', type=str2bool, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/num_workers', type=int, default=argparse.SUPPRESS)
     overwrite_group.add_argument('--train/max_epochs', type=int, default=argparse.SUPPRESS)

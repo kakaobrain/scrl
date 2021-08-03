@@ -10,7 +10,7 @@ from .linear_eval import linear_eval_online, linear_eval_offline
 from .result_pack import ResultPack
 from distributed import comm
 from models import SCRLBoxGenerator
-from models.heads import SingleLayerLinearHead, TwoLayerLinearHead
+from models.heads import SingleLayerLinearHead, MultiLayerNonLinearHead
 from utils import detect_anomaly_with_redirected_cpp_error
 from utils import DistributedProgressDisplayer, decompose_collated_batch
 from utils import Colorer, ColorerContext, TimeOfArrivalEstimator

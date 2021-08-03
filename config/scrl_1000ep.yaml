@@ -3,9 +3,11 @@ load_dir: null
 network:
   name: resnet50
   proj_head:
+    num_layers: 2
     input_size: 2048
     hidden_size: 4096
     output_size: 256
+    output_bn: False
   scrl:
     enabled: True
     num_patches_per_image: 10
