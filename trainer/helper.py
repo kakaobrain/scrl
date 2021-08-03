@@ -143,34 +143,40 @@ class TrainerOutputs(object):
 
 
 class TensorBoardWriter(object):
-    def __init__(self, interval=1, save_dir=None, flush_secs=120):
-        self.interval = interval
+    def __init__(self, interval_for_train=1, save_dir=None, flush_secs=120):
+        self.interval_for_train = interval_for_train
         if comm.is_main_process():
-            self.writer = SummaryWriter(log_dir=f"tboard/{save_dir}/", 
+            self._writer = SummaryWriter(log_dir=f"tboard/{save_dir}/", 
                                         flush_secs=flush_secs)
         else:
-            self.writer = None
+            self._writer = None
                 
     @classmethod
-    def init_for_train_from_config(cls, cfg):
+    def init_from_config(cls, cfg):
         return cls(
-            interval=cfg.train.tb_interval,
+            interval_for_train=cfg.train.tb_interval,
             save_dir=cfg.save_dir,
             flush_secs=120 if not cfg.debug else 5,
         )
         
     def __del__(self):
-        if self.writer is not None:
-            self.writer.close()
+        if self._writer is not None:
+            self._writer.close()
         
-    def add_outputs(self, outputs, global_step, prefix=""):
-        if self.writer is None:
+    def add_outputs_for_train(self, outputs, global_step, prefix=""):
+        if self._writer is None:
             return False
-        if (self.interval >= 0 and 
-                not global_step % self.interval == 0):
+        if (self.interval_for_train >= 0 and 
+                not global_step % self.interval_for_train == 0):
             return False
         assert isinstance(outputs, TrainerOutputs)
         for key, value in  outputs.scalar_only().items():
             key = f"{prefix}/{key}" if prefix else key
-            self.writer.add_scalar(key, value, global_step)
+            self._writer.add_scalar(key, value, global_step)
+        return True
+
+    def add_scalar_for_eval(self, key, value, global_step):
+        if self._writer is None:
+            return False
+        self._writer.add_scalar(key, value, global_step)
         return True

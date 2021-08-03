@@ -106,7 +106,7 @@ class SCRLTrainer(BYOLBasedTrainer):
                     f"eta:{eta.estimate_step_str()}"
                 )
                 global_step = len(self.train_loader) * (epoch - 1) + step - 1
-                self.tb_writer.add_outputs(outs, global_step)
+                self.tb_writer.add_outputs_for_train(outs, global_step)
                 
                 # EMA update
                 comm.synchronize()
@@ -148,6 +148,8 @@ class SCRLTrainer(BYOLBasedTrainer):
                     f"eEvalAcc:{last_eval_on:5.2f}%, "
                     f"eEvaMax:{self.max_eval_score:5.2f}% {is_best}"
                 )
+                self.tb_writer.add_scalar_for_eval(
+                    'eEvalAcc', last_eval_on, epoch)
 
             if comm.synchronize() and comm.is_local_main_process():
                 result_dict = outs.scalar_only().to_dict()

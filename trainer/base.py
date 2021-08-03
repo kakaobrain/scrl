@@ -80,7 +80,7 @@ class BYOLBasedTrainer:
                 exclude_from_lars=True, module_black_list=['target_network'])
             self.scaler = torch.cuda.amp.GradScaler() #init_scale=2**14)
             # default init_scale 2**16 will yield invalid gradient in the first interation 
-            self.tb_writer = TensorBoardWriter.init_for_train_from_config(cfg)
+            self.tb_writer = TensorBoardWriter.init_from_config(cfg)
         else:
             self.optimizer, self.scheduler, self.scaler = None, None, None
 
