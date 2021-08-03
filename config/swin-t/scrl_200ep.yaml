@@ -8,6 +8,8 @@ network:
     hidden_size: 4096
     output_size: 256
     output_bn: True
+  swin:
+    fix_patch_proj: False
   scrl:
     enabled: True
     num_patches_per_image: 10

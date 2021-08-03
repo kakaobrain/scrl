@@ -26,7 +26,7 @@ CONFIG_MAP = {
 }
 
 
-def build_swin_xformer(name):
+def build_swin_xformer(name, fix_patch_proj=False):
     config_file = CONFIG_MAP[name]
     config = load_config_yaml(config_file)
     config = Config(config)
@@ -47,6 +47,7 @@ def build_swin_xformer(name):
         ape=config.MODEL.SWIN.APE,
         patch_norm=config.MODEL.SWIN.PATCH_NORM,
         use_checkpoint=config.TRAIN.USE_CHECKPOINT,
+        frozen_stages=0 if fix_patch_proj else -1,
     )
 
 
