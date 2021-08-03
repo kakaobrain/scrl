@@ -28,10 +28,10 @@ def bisect_params_with_names(named_params, criterion):
     return out_params, in_params
 
 
-def scale_learning_rate(cfg, mode):
+def scaled_optim_kwargs(cfg, mode):
     assert mode in ['train', 'eval']
     world_size = comm.get_world_size()
-    lr_origin = cfg[mode].optim.lr
+    lr_origin = cfg[mode].optim_kwargs.lr
     local_batch = cfg[mode].batch_size_train
     global_batch = int(local_batch * world_size)
     ratio = global_batch / 256.
@@ -47,38 +47,38 @@ def scale_learning_rate(cfg, mode):
              f'world_size ({world_size}) = global_batch ({global_batch})')
     log.info(f'[LR({mode})] scale LR from {lr_origin} '
              f'to {lr:6.5f} (x{ratio:3.2f}) by {lr_scaling} scaling rule.')
-    optim = deepcopy(cfg[mode].optim)
-    optim.lr = lr
-    return optim
+    optim_kwargs_new = deepcopy(cfg[mode].optim_kwargs)
+    optim_kwargs_new.lr = lr
+    return optim_kwargs_new
 
 
-def get_optimizer_and_scheduler(cfg, mode, modules, loader, 
-                                exclude_from_lars=False, module_black_list=(),):
+def get_optimizer_and_scheduler(
+    cfg, mode, modules, loader, module_black_list=(),):
     assert mode in ['train', 'eval']
     modules = [mod for name, mod in modules.items() 
                if name not in module_black_list]
 
-    if exclude_from_lars:
+    if cfg[mode].lars:
         # separate batch_norm & bias params to exclude them 
         # from lars adaption & weight decaying (as in official code)
         params_default, params_bn_bias = bisect_params_with_names(
             named_params=chain(*[m.named_parameters() for m in modules]),
             criterion=['bn', 'bias'],
-        )
+            )
+        params = [{'params': params_default, 
+                        'lars_adaptation': True}]
+        if params_bn_bias:
+            params.append({'params': params_bn_bias, 
+                                'lars_adaptation': False, 
+                                'weight_decay': 0.})
     else:
-        params_default = chain(*[m.parameters() for m in modules])
-        params_bn_bias = None
-        
-    param_group = [{'params': params_default, 
-                    'lars_adaptation': True}]
-    if params_bn_bias:
-        param_group.append({'params': params_bn_bias, 
-                            'lars_adaptation': False, 
-                            'weight_decay': 0.})
+        params = chain(*[m.parameters() for m in modules])
         
     # optimizer
-    optimizer = CustomLARS(torch.optim.SGD(
-        param_group, **scale_learning_rate(cfg, mode)))
+    optim_cls = get_optim_cls_by_name(cfg[mode].optimizer)
+    optimizer = optim_cls(params, **scaled_optim_kwargs(cfg, mode))
+    if cfg[mode].lars:
+        optimizer = CustomLARS(optimizer)
     
     # scheduler
     t_max = cfg[mode].max_epochs - cfg[mode].warmup_epochs
@@ -94,3 +94,12 @@ def get_optimizer_and_scheduler(cfg, mode, modules, loader,
             deprecate_epoch=False)
     
     return optimizer, scheduler
+
+
+def get_optim_cls_by_name(name):
+    if name.lower() == 'sgd':
+        return torch.optim.SGD
+    elif name.lower() == 'adamw':
+        return torch.optim.AdamW
+    else:
+        raise Exception(f"Unexpected optimizer name: {name}")

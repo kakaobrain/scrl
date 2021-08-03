@@ -43,12 +43,13 @@ train:
   snapshot_interval: 100
   tb_interval: 5
   num_workers: 12
-  m: 0.996
+  m: 0.99
   lr_scaling: sqrt
-  optim:
-    lr: 0.2
-    momentum: 0.9
-    weight_decay: 0.0000015
+  optimizer: adamw
+  lars: False
+  optim_kwargs:
+    lr: 0.001
+    weight_decay: 0.05
 
 eval:
   enabled: True

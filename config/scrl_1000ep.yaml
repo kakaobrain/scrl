@@ -42,7 +42,9 @@ train:
   tb_interval: 5
   num_workers: 12
   m: 0.996
-  optim:
+  optimizer: sgd
+  lars: True
+  optim_kwargs:
     lr: 0.2
     momentum: 0.9
     weight_decay: 0.0000015
@@ -56,7 +58,9 @@ eval:
   batch_size_train: 128
   batch_size_eval: 2048
   num_workers: 12
-  optim:
+  optimizer: sgd
+  lars: True
+  optim_kwargs:
     lr: 0.2
     momentum: 0.9
     weight_decay: 0.0
