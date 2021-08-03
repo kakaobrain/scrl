@@ -98,10 +98,10 @@ class BYOLBasedTrainer:
     @classmethod
     def init_from_config(cls, cfg):
         train_loader, eval_loader, num_classes = get_loaders_for_trainer(cfg)
-        online_network = Backbone.init_from_config(cfg)
+        online_network = Backbone.init_online_from_config(cfg)
         target_network, predictor, evaluator = None, None, None
         if cfg.train.enabled:
-            target_network = Backbone.init_from_config(cfg)
+            target_network = Backbone.init_target_from_config(cfg)
             predictor = MultiLayerNonLinearHead.init_predictor_from_config(cfg)
             evaluator = SingleLayerLinearHead.init_evaluator_from_config(
                 cfg, num_classes)

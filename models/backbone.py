@@ -10,16 +10,19 @@ log = logging.getLogger('main')
 
 
 class Backbone(torch.nn.Module):
-    def __init__(self, network_kwargs, trainable=True):
+    def __init__(self, net_type, network_kwargs, trainable=True):
         super(Backbone, self).__init__()
+        assert net_type in ['online', 'target'], \
+            "net_type should be either 'online' or 'target'"
         self.name = network_kwargs.name
-        assert self.name in ['resnet50', 'resnet101'] or self.name.startswith('swin')
+        assert self.name in ['resnet50', 'resnet101'] or self.name.startswith('swin'), \
+            f"Unexpected network name: {self.name}"
         self.scrl_enabled = network_kwargs.scrl.enabled
         self.trainable = trainable
 
         # encoder
         if self.name.startswith('swin'):
-            network = build_swin_xformer(self.name, network_kwargs.swin.fix_patch_proj)
+            network = build_swin_xformer(self.name, net_type, network_kwargs.swin.fix_patch_proj)
             self.encoder = network
         else:
             network = eval(f"models.{self.name}")()
@@ -38,8 +41,17 @@ class Backbone(torch.nn.Module):
             self.projector = MultiLayerNonLinearHead(**network_kwargs.proj_head)
 
     @classmethod
-    def init_from_config(cls, cfg):
+    def init_online_from_config(cls, cfg):
         return cls(
+            net_type='online',
+            network_kwargs=cfg.network,
+            trainable=cfg.train.enabled,
+        )
+        
+    @classmethod
+    def init_target_from_config(cls, cfg):
+        return cls(
+            net_type='target',
             network_kwargs=cfg.network,
             trainable=cfg.train.enabled,
         )

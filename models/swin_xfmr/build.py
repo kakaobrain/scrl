@@ -26,11 +26,15 @@ CONFIG_MAP = {
 }
 
 
-def build_swin_xformer(name, fix_patch_proj=False):
+def build_swin_xformer(name, net_type, fix_patch_proj=False):
+    assert net_type in ['online', 'target'], \
+        "net_type should be either 'online' or 'target'"
     config_file = CONFIG_MAP[name]
     config = load_config_yaml(config_file)
     config = Config(config)
     config.freeze()
+    # Asymmetric drop path rates used in MoBY (https://arxiv.org/abs/2105.04553)
+    drop_path_rate = config.MODEL.DROP_PATH_RATE if net_type == 'online' else 0.
     return SwinTransformer(
         pretrain_img_size=config.DATA.IMG_SIZE,
         patch_size=config.MODEL.SWIN.PATCH_SIZE,
@@ -43,7 +47,7 @@ def build_swin_xformer(name, fix_patch_proj=False):
         qkv_bias=config.MODEL.SWIN.QKV_BIAS,
         qk_scale=config.MODEL.SWIN.QK_SCALE,
         drop_rate=config.MODEL.DROP_RATE,
-        drop_path_rate=config.MODEL.DROP_PATH_RATE,
+        drop_path_rate=drop_path_rate,
         ape=config.MODEL.SWIN.APE,
         patch_norm=config.MODEL.SWIN.PATCH_NORM,
         use_checkpoint=config.TRAIN.USE_CHECKPOINT,
