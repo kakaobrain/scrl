@@ -13,7 +13,7 @@ from .helper import TensorBoardWriter
 from .linear_eval import iter_eval_epoch, linear_eval_online, linear_eval_offline
 from data import get_loaders_for_trainer
 from models import Backbone
-from models.heads import SingleLayerLinearHead, TwoLayerLinearHead
+from models.heads import SingleLayerLinearHead, MultiLayerNonLinearHead
 from optim import get_optimizer_and_scheduler
 import utils
 
@@ -102,7 +102,7 @@ class BYOLBasedTrainer:
         target_network, predictor, evaluator = None, None, None
         if cfg.train.enabled:
             target_network = Backbone.init_from_config(cfg)
-            predictor = TwoLayerLinearHead.init_predictor_from_config(cfg)
+            predictor = MultiLayerNonLinearHead.init_predictor_from_config(cfg)
             evaluator = SingleLayerLinearHead.init_evaluator_from_config(
                 cfg, num_classes)
         return cls(

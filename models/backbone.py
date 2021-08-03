@@ -4,7 +4,7 @@ import torch
 import torchvision.models as models
 from models.swin_xfmr import build_swin_xformer
 import torchvision.ops as ops
-from models.heads import TwoLayerLinearHead
+from models.heads import MultiLayerNonLinearHead
 
 log = logging.getLogger('main')
 
