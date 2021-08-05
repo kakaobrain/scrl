@@ -1,13 +1,15 @@
 import copy
 import errno
-import os
+import itertools
 import logging
 import math
+import os
 
 import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.nn.parallel import DistributedDataParallel
+from torch.nn.utils import clip_grad_norm_
 
 from .helper import TensorBoardWriter
 from .linear_eval import iter_eval_epoch, linear_eval_online, linear_eval_offline
@@ -31,10 +33,11 @@ def _unwrap(wrapped_module):
 
 
 def _regression_loss(x, y):
-        # eps = 1e-6 if torch.is_autocast_enabled() else 1e-12
-        x = F.normalize(x, p=2, dim=1) #, eps=eps)
-        y = F.normalize(y, p=2, dim=1) #, eps=eps)
-        return (2 - 2 * (x * y).sum(dim=1)).view(-1)
+    # eps = 1e-6 if torch.is_autocast_enabled() else 1e-12
+    eps = 1e-12
+    x = F.normalize(x, p=2, dim=1, eps=eps)
+    y = F.normalize(y, p=2, dim=1, eps=eps)
+    return (2 - 2 * (x * y).sum(dim=1)).view(-1)
 
 
 class BYOLBasedTrainer:
@@ -76,20 +79,35 @@ class BYOLBasedTrainer:
             self.max_epochs = cfg.train.max_epochs
             self.total_global_step = len(train_loader) * cfg.train.max_epochs
             self.optimizer, self.scheduler = get_optimizer_and_scheduler(
-                cfg=self.cfg, mode='train', modules=self._modules, loader=train_loader,
-                module_black_list=['target_network'])
-            self.scaler = torch.cuda.amp.GradScaler() #init_scale=2**14)
+                cfg=self.cfg, mode='train', modules=self._modules, 
+                loader=train_loader, module_black_list=['target_network'])
             # default init_scale 2**16 will yield invalid gradient in the first interation 
+            self.scaler = torch.cuda.amp.GradScaler()#init_scale=2**14)
             self.tb_writer = TensorBoardWriter.init_from_config(cfg)
         else:
             self.optimizer, self.scheduler, self.scaler = None, None, None
 
     def __setattr__(self, name, value):
         if hasattr(value, 'state_dict') and callable(value.state_dict):
-            self._saving_targets[name] = value  # including optimzers & schedulers
+            # including optimzers & schedulers
+            self._saving_targets[name] = value
         if isinstance(value, nn.Module):
             self._modules[name] = value
         object.__setattr__(self, name, value)
+        
+    def parameters(self):
+        params = [m.parameters() for m in self._modules.values()]
+        return itertools.chain(*params)
+    
+    def clip_grad_norm_(self):
+        self.scaler.unscale_(self.optimizer)
+        return clip_grad_norm_(self.parameters(), self.cfg.train.clip_grad_norm)
+    
+    def get_grad_norm(self, norm_type=2):
+        self.scaler.unscale_(self.optimizer)
+        norm_type = float(norm_type)
+        parameters = filter(lambda p: p.grad is not None, self.parameters())
+        return torch.cat([p.grad.view(-1)for p in parameters]).norm(norm_type)
         
     def run(self):
         """Main training algorithm should be implemented in this method."""

@@ -11,7 +11,7 @@ network:
   swin:
     fix_patch_proj: False
   scrl:
-    enabled: True
+    enabled: False
     num_patches_per_image: 10
     iou_threshold: 0.5
     box_jittering: False

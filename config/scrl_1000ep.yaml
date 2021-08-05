@@ -44,6 +44,7 @@ train:
   m: 0.996
   optimizer: sgd
   lars: True
+  clip_grad_norm: 0.0
   optim_kwargs:
     lr: 0.2
     momentum: 0.9

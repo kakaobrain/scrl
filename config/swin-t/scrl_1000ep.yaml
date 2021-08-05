@@ -47,6 +47,7 @@ train:
   lr_scaling: sqrt
   optimizer: adamw
   lars: False
+  clip_grad_norm: 5.0
   optim_kwargs:
     lr: 0.001
     weight_decay: 0.05
@@ -61,8 +62,8 @@ eval:
   batch_size_eval: 1024
   num_workers: 12
   lr_scaling: sqrt
-  optim:
-    lr: 0.2
-    momentum: 0.9
+  optimizer: adamw
+  lars: False
+  optim_kwargs:
+    lr: 1.0
     weight_decay: 0.0
-    nesterov: True

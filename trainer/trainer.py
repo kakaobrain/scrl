@@ -92,6 +92,10 @@ class SCRLTrainer(BYOLBasedTrainer):
                 self.scheduler.step()
                 self.optimizer.zero_grad()
                 self.scaler.scale(loss_total).backward()
+                if self.cfg.train.clip_grad_norm:
+                    grad_norm = self.clip_grad_norm_()
+                else:
+                    grad_norm = self.get_grad_norm()
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
                 
@@ -100,6 +104,7 @@ class SCRLTrainer(BYOLBasedTrainer):
                     f"ep:{epoch}/{self.max_epochs}, "
                     f"lr:{self.scheduler.get_last_lr()[0]:5.4f}, "
                     f"m:{self.m:5.4f}, "
+                    f"grad_norm:{grad_norm:5.4f}, "
                     f"{str(outs.by_cls_name('Loss'))}, "
                     f"{str(outs.by_cls_name('Metric'))}, "
                     f"eEvaMax:{self.max_eval_score:5.2f}%, "
