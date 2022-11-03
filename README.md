@@ -138,10 +138,10 @@ If you use this code for your research, please cite our paper.
 ```
 @inproceedings{roh2021scrl,
   title={Spatilly Consistent Representation Learning},
-  author    = {Byungseok Roh and
-               Wuhyun Shin and
-               Ildoo Kim and
-               Sungwoong Kim},
+  author    = {Roh, Byungseok and
+               Shin, Wuhyun and
+               Kim, Ildoo and
+               Kim, Sungwoong},
   booktitle = {CVPR},
   publisher = {IEEE},
   year      = {2021}
