@@ -110,10 +110,10 @@ $ python main.py --config config/scrl_200ep.yaml --train/enabled=False --load_di
 |---------:|--------:|--------------------------:|---------------:|-----------------:|--------------:|
 | Random   | --      |--&ensp; / &ensp; -- &ensp;| 29.77 / 30.95  | 28.70            | --            |
 | IN-sup.  | 90      |--&ensp; / &ensp;74.3      | 38.52 / 39.00  | 35.44            | --            |
-| BYOL     | 200     | 72.90 / 73.14             | 38.35 / 38.86  | 35.96            | [download](http://arena.kakaocdn.net/brainrepo/scrl/byol_200ep.pth) |
-| BYOL     | 1000    | 74.47 / 74.51             | 40.10 / 40.19  | 37.16            | [download](http://arena.kakaocdn.net/brainrepo/scrl/byol_1000ep.pth)|
-| **SCRL** | 200     | 66.78 / 68.27             | 40.49 / 41.02  | 37.50            | [download](http://arena.kakaocdn.net/brainrepo/scrl/scrl_200ep.pth) |
-| **SCRL** | 1000    | 70.67 / 70.66             | 40.92 / 41.40  | 37.92            | [download](http://arena.kakaocdn.net/brainrepo/scrl/scrl_1000ep.pth)|
+| BYOL     | 200     | 72.90 / 73.14             | 38.35 / 38.86  | 35.96            | [download](http://twg.kakaocdn.net/brainrepo/scrl/byol_200ep.pth) |
+| BYOL     | 1000    | 74.47 / 74.51             | 40.10 / 40.19  | 37.16            | [download](http://twg.kakaocdn.net/brainrepo/scrl/byol_1000ep.pth)|
+| **SCRL** | 200     | 66.78 / 68.27             | 40.49 / 41.02  | 37.50            | [download](http://twg.kakaocdn.net/brainrepo/scrl/scrl_200ep.pth) |
+| **SCRL** | 1000    | 70.67 / 70.66             | 40.92 / 41.40  | 37.92            | [download](http://twg.kakaocdn.net/brainrepo/scrl/scrl_1000ep.pth)|
 
 * **Epoch**: self-supervised pre-training epochs
 * **Linear Eval**(linear evaluation): `online` **/** `offline`
